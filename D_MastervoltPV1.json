@@ -1,0 +1,506 @@
+{
+	"default_icon": "MastervoltPV1.png",
+	"state_icons": [],
+	"inScene": "0",
+	"Tabs": [
+		{
+			"Label": {
+				"lang_tag": "tabname_control",
+				"text": "Control" 
+		},	
+		"Position": "0",
+		"TabType": "flash",
+		"TopNavigationTab": 1,
+		"SceneGroup": [
+			{
+				"id": "1",
+				"top": "1",
+				"left": "0",
+				"x": "2",
+				"y": "3"
+			},
+			{
+				"id": "2",
+				"top": "2",
+				"left": "0",
+				"x": "2",
+				"y": "3"
+			}
+		],
+		"ControlGroup": [
+			{
+				"id": "1",
+				"type": "info",
+				"scenegroup": "1"
+			},
+            {
+				"id": "2",
+				"type": "info",
+				"scenegroup": "2"
+			}
+		],
+		"Control": [
+			{
+				"ControlGroup":"1", 
+				"ControlPair":"1",
+				"ControlType":"label",
+				"top": 0,
+				"left": 0,
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "power",
+					"text": "Output:" 
+				},
+				"Display": {
+					"Top": 60,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlGroup":"1", 
+				"ControlPair":"1",
+				"ControlType":"variable",
+				"top": 0,
+				"left": 0.5,
+				"text_align": "right",
+				"Display": {
+					"Service": "urn:micasaverde-com:serviceId:EnergyMetering1",
+					"Variable": "Watts",
+					"Top": 60,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlGroup":"1", 
+				"ControlPair":"1",
+				"ControlType":"label",
+				"top": 0,
+				"left": 1.5,
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "ui7_watts",
+					"text": "W" 
+				},
+				"Display": {
+					"Top": 60,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlGroup":"2", 
+				"ControlPair":"2",
+				"ControlType":"label",
+				"top": 0,
+				"left": 3,
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "totalpower",
+					"text": "Total output:" 
+				},
+				"Display": {
+					"Top": 90,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlGroup":"2", 
+				"ControlPair":"2",
+				"ControlType":"variable",
+				"top": 0,
+				"left": 3.5,
+				"text_align": "right",
+				"Display": {
+					"Service": "urn:micasaverde-com:serviceId:EnergyMetering1",
+					"Variable": "KWH",
+					"Top": 90,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlGroup":"2", 
+				"ControlPair":"2",
+				"ControlType":"label",
+				"top": 0,
+				"left": 4.5,
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "ui7_kwh",
+					"text": "kWh"
+				},
+				"Display": {
+					"Top": 90,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"3",
+				"ControlType":"label",
+				"text_align" : "left",
+				"Label": {
+					"lang_tag": "pv_voltage",
+					"text": "PV voltage:" 
+				},
+				"Display": {
+					"Top": 120,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"3",
+				"ControlType":"variable",
+				"text_align": "right",
+				"Display": {
+					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
+					"Variable": "PVVoltage",
+					"Top": 120,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"3",
+				"ControlType":"label",
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "volt",
+					"text": "V"
+				},
+				"Display": {
+					"Top": 120,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"4",
+				"ControlType":"label",
+				"text_align" : "left",
+				"Label": {
+					"lang_tag": "pv_current",
+					"text": "PV Current:" 
+				},
+				"Display": {
+					"Top": 150,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"4",
+				"ControlType":"variable",
+				"text_align": "right",
+				"Display": {
+					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
+					"Variable": "PVCurrent",
+					"Top": 150,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"4",
+				"ControlType":"label",
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "ampere",
+					"text": "A"
+				},
+				"Display": {
+					"Top": 150,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"5",
+				"ControlType":"label",
+				"text_align" : "left",
+				"Label": {
+					"lang_tag": "grid_voltage",
+					"text": "Grid Voltage:" 
+				},
+				"Display": {
+					"Top": 180,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"5",
+				"ControlType":"variable",
+				"text_align": "right",
+				"Display": {
+					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
+					"Variable": "GridVoltage",
+					"Top": 180,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"5",
+				"ControlType":"label",
+				"text_align": "left",
+				"Label": {
+					"lang_tag": "volt",
+					"text": "V"
+				},
+				"Display": {
+					"Top": 180,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"6",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "grid_frequency",
+					"text": "Grid Frequency:" 
+				},
+				"Display": {
+					"Top": 210,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"6",
+				"ControlType":"variable",
+				"text_align":"right",
+				"Display": {
+					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
+					"Variable": "GridFrequency",
+					"Top": 210,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"6",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "herz",
+					"text": "Hz"
+				},
+				"Display": {
+					"Top": 210,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"7",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "operating_time",
+					"text": "Inverter Operating Time:" 
+				},
+				"Display": {
+					"Top": 240,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"7",
+				"ControlType":"variable",
+				"text_align":"right",
+				"Display": {
+					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
+					"Variable": "OperatingTime",
+					"Top": 240,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"7",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "minutes",
+					"text": "min."
+				},
+				"Display": {
+					"Top": 240,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"8",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "operating_temp",
+					"text": "Inverter Operating Temperature:" 
+				},
+				"Display": {
+					"Top": 270,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"7",
+				"ControlType":"variable",
+				"text_align":"right",
+				"Display": {
+					"Service": "urn:upnp-org:serviceId:TemperatureSensor1",
+					"Variable": "CurrentTemperature",
+					"Top": 270,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"7",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": {
+					"lang_tag": "ui7_degree_sign",
+					"text": "°C"
+				},
+				"Display": {
+					"Top": 270,
+					"Left": 260,
+					"Width": 25,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"9",
+				"ControlType":"label",
+				"text_align":"left",
+				"Label": { "text": "Last Update:" 
+				},
+				"Display": {
+					"Top": 300,
+					"Left": 50,
+					"Width": 180,
+					"Height": 20 
+				} 
+			},
+			{
+				"ControlPair":"9",
+				"ControlType":"variable",
+				"text_align":"right",
+				"Display": {
+					"Service": "urn:schemas-micasaverde-com:service:HaDevice:1",
+					"Variable": "LastUpdate",
+					"Top": 300,
+					"Left": 200,
+					"Width": 55,
+					"Height": 20 
+				} 
+			}
+		] 
+	},
+    {
+      "Label": {
+        "lang_tag": "settings",
+        "text": "Settings"
+      },
+      "Position": "1",
+      "TabType": "javascript",
+      "ScriptName": "shared.js",
+      "Function": "simple_device"
+    },
+    {
+		"Label": {
+			"lang_tag": "advanced",
+			"text": "Advanced" 
+		},
+		"Position": "2",
+		"TabType": "javascript",
+		"ScriptName": "shared.js",
+		"Function": "advanced_device" 
+	},
+	{
+		"Label": {
+			"lang_tag": "logs",
+			"text": "Logs" 
+		},
+		"Position": "3",
+		"TabType": "javascript",
+		"ScriptName": "shared.js",
+		"Function": "device_logs" 
+	},
+	{
+		"Label": {
+			"lang_tag": "notifications",
+			"text": "Notifications" 
+		},
+		"Position": "4",
+		"TabType": "javascript",
+		"ScriptName": "shared.js",
+		"Function": "device_notifications" 
+	} 
+	],
+	"eventList": {
+		"event_1": {
+			"label": "Energy production goes above",
+			"serviceId": "urn:micasaverde-com:serviceId:EnergyMetering1",
+			"norepeat": "1",
+			"argumentList" : {
+				"argument_1" : {
+					"dataType": "i4",
+					"name": "Watts",
+					"comparisson": ">",
+					"prefix": "Watts: ",
+					"suffix": ""
+				}
+			}
+		},
+		"event_2": {
+			"label": "Energy production goes below",
+			"serviceId": "urn:micasaverde-com:serviceId:EnergyMetering1",
+			"norepeat": "1",
+			"argumentList" : {
+				"argument_1" : {
+					"dataType": "i4",
+					"name": "Watts",
+					"comparisson": "<",
+					"prefix": "Watts: ",
+					"suffix": ""
+				}
+			}
+		}
+	} ,
+	"DeviceType": "urn:schemas-mastervolt-com:service:MastervoltPV:1", 
+	"device_type": "urn:schemas-mastervolt-com:service:MastervoltPV:1" 
+}

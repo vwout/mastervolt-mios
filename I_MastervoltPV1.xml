@@ -1,0 +1,16 @@
+<?xml version="1.0"?>
+<implementation>
+  <settings>
+    <protocol>raw</protocol>
+    <ioPort>23</ioPort>
+  </settings>
+
+  <files>L_MastervoltPV1.lua</files>
+
+  <startup>MastervoltPV_init</startup>
+  <incoming>
+    <lua>
+      MastervoltPV_Incoming(lul_device, lul_data)
+    </lua>
+  </incoming>
+</implementation>

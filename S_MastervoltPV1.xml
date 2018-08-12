@@ -1,0 +1,35 @@
+<?xml version="1.0"?>
+<scpd xmlns="urn:schemas-upnp-org:service-1-0">
+	<specVersion>
+		<major>1</major>
+		<minor>0</minor>
+	</specVersion>
+	<serviceStateTable>
+		<stateVariable sendEvents="no">
+			<name>Flags</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+		<stateVariable sendEvents="yes">
+			<name>PVVoltage</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+		<stateVariable sendEvents="yes">
+			<name>PVCurrent</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+		<stateVariable sendEvents="no">
+			<name>GridVoltage</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+		<stateVariable sendEvents="no">
+			<name>GridFrequency</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+		<stateVariable sendEvents="no">
+			<name>OperatingTime</name>
+			<dataType>ui4</dataType>
+		</stateVariable>
+	</serviceStateTable>
+	<actionList>
+	</actionList>
+</scpd>
