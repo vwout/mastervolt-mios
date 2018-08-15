@@ -69,7 +69,7 @@
 					"Service": "urn:micasaverde-com:serviceId:EnergyMetering1",
 					"Variable": "Watts",
 					"Top": 60,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -87,7 +87,7 @@
 				},
 				"Display": {
 					"Top": 60,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -121,7 +121,7 @@
 					"Service": "urn:micasaverde-com:serviceId:EnergyMetering1",
 					"Variable": "KWH",
 					"Top": 90,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -139,7 +139,7 @@
 				},
 				"Display": {
 					"Top": 90,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -167,7 +167,7 @@
 					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
 					"Variable": "PVVoltage",
 					"Top": 120,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -182,7 +182,7 @@
 				},
 				"Display": {
 					"Top": 120,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -210,7 +210,7 @@
 					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
 					"Variable": "PVCurrent",
 					"Top": 150,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -225,7 +225,7 @@
 				},
 				"Display": {
 					"Top": 150,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -253,7 +253,7 @@
 					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
 					"Variable": "GridVoltage",
 					"Top": 180,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -268,7 +268,7 @@
 				},
 				"Display": {
 					"Top": 180,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -296,7 +296,7 @@
 					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
 					"Variable": "GridFrequency",
 					"Top": 210,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -311,7 +311,7 @@
 				},
 				"Display": {
 					"Top": 210,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -339,7 +339,7 @@
 					"Service": "urn:mastervolt-com:serviceId:MastervoltPV1",
 					"Variable": "OperatingTime",
 					"Top": 240,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -354,7 +354,7 @@
 				},
 				"Display": {
 					"Top": 240,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -382,7 +382,7 @@
 					"Service": "urn:upnp-org:serviceId:TemperatureSensor1",
 					"Variable": "CurrentTemperature",
 					"Top": 270,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
@@ -397,7 +397,7 @@
 				},
 				"Display": {
 					"Top": 270,
-					"Left": 260,
+					"Left": 300,
 					"Width": 25,
 					"Height": 20 
 				} 
@@ -423,7 +423,7 @@
 					"Service": "urn:schemas-micasaverde-com:service:HaDevice:1",
 					"Variable": "LastUpdate",
 					"Top": 300,
-					"Left": 200,
+					"Left": 240,
 					"Width": 55,
 					"Height": 20 
 				} 
