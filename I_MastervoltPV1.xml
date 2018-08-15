@@ -7,7 +7,7 @@
 
   <files>L_MastervoltPV1.lua</files>
 
-  <startup>MastervoltPV_init</startup>
+  <startup>MastervoltPV_Init</startup>
   <incoming>
     <lua>
       MastervoltPV_Incoming(lul_device, lul_data)
