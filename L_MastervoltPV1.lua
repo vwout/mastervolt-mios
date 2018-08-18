@@ -43,6 +43,7 @@ end
 local bit, _ = requireany('bit', 'nixio.bit', 'bit32', 'bit.numberlua')
 local socket = require("socket") -- for gettime
 
+
 ---
 -- ServiceId strings for the different sensors
 -- Device ID
@@ -324,6 +325,7 @@ end
 
 local function MastervoltPV_GetCommandFromData(data)
   local command = 0
+  local commandName = nil
   
   if #data == Protocol.CommandLength then
     if type(data) == 'string' then
@@ -333,7 +335,14 @@ local function MastervoltPV_GetCommandFromData(data)
     end
   end
   
-  return command
+  for key, value in pairs(Protocol.Commands) do 
+    if value == command then
+      commandName = key
+      break
+    end
+  end
+  
+  return command, commandName
 end
 
 --- Verifies the checksum (last byte) in data
@@ -411,6 +420,51 @@ local function MastervoltPV_DecodeStats(data)
   return stats
 end
 
+function MastervoltPV_HandleIncomingProbe(responseData)
+  local probe = MastervoltPV_DecodeProbe(responseData)
+  logDbg(string.format("device address': %x", probe.DeviceAddress))
+  
+  setLuupVar("DeviceAddress", probe.DeviceAddress, MastervoltSID) -- Store the device address as variable
+  Config.Protocol.DestinationAddress = probe.DeviceAddress        -- Store the device address in the local configuration for use in all commands
+  
+  return probe
+end
+
+function MastervoltPV_HandleIncomingFirmware(responseData)
+  local firmware = MastervoltPV_DecodeFirmware(responseData)
+  logDbg(string.format("id': %x, version: %.2f, date: %d", 
+         firmware.Id, firmware.Version, firmware.Date))
+         
+  return firmware
+end
+
+function MastervoltPV_HandleIncomingStats(responseData)
+  local stats = MastervoltPV_DecodeStats(responseData)
+  logDbg(string.format("flags': %x, pv_volt: %.1f, pv_amp: %.2f, grid_freq: %.2f, grid_volt: %d, grid_pow: %d, total_pow: %.2f, temp: %d, optime: %d", 
+         stats.Flags, stats.PV_Voltage, stats.PV_Amperage, stats.Grid_Frequency, stats.Grid_Voltage, stats.Grid_Power, stats.Grid_Output_Total, stats.Device_Temperature, stats.Device_Operatingtime))
+  
+  setLuupVar("Flags",              stats.Flags,                  MastervoltSID)
+  setLuupVar("PVVoltage",          stats.PV_Voltage,             MastervoltSID)
+  setLuupVar("PVCurrent",          stats.PV_Amperage,            MastervoltSID)
+  setLuupVar("GridVoltage",        stats.Grid_Voltage,           MastervoltSID)
+  setLuupVar("GridFrequency",      stats.Grid_Frequency,         MastervoltSID)
+  setLuupVar("OperatingTime",      stats.Device_Operatingtime,   MastervoltSID)
+  setLuupVar("Watts",              stats.Grid_Power,             EnergyMeterSID)
+  setLuupVar("KWH",                stats.Grid_Output_Total,      EnergyMeterSID)
+  setLuupVar("CurrentTemperature", stats.Device_Temperature,     TemperatureSensorSID)
+  setLuupVar("LastUpdate",         math.floor(socket.gettime()), HaDeviceSID)
+  
+  return stats
+end
+
+-- Array to map a command to a corresponding incoming data handle function
+local HandleIncomingFuncMap = {
+  [Protocol.Commands.PROBE]    = MastervoltPV_HandleIncomingProbe,
+  [Protocol.Commands.FIRMWARE] = MastervoltPV_HandleIncomingFirmware,
+  [Protocol.Commands.STATS]    = MastervoltPV_HandleIncomingStats
+}
+
+
 local function MastervoltPV_Connect()
   local connected = false
   local ipAddress, unused, ipPort = string.match(luup.devices[lul_device].ip, "^([%w%.%-]+)(:?(%d-))$")
@@ -477,67 +531,31 @@ function MastervoltPV_Incoming(lul_device, lul_data)
 
     if MastervoltPV_VerifyChecksum(commandEcho) then
       
-      local command = MastervoltPV_GetCommandFromData(commandEcho)
-      logDbg(string.format("Response command received: %s", utils.num2hex(command)))
-
-      if command == Protocol.Commands.PROBE then
-        if #responseData >= Protocol.ReplyLength.PROBE then
-          if MastervoltPV_VerifyChecksum(responseData) then
-            local probe = MastervoltPV_DecodeProbe(responseData)
-            logDbg(string.format("device address': %x", probe.DeviceAddress))
-            
-            setLuupVar("DeviceAddress", probe.DeviceAddress, MastervoltSID) -- Store the device address as variable
-            Config.Protocol.DestinationAddress = probe.DeviceAddress        -- Store the device address in the local configuration for use in all commands
-          else
-            logDbg("Checksum for received response failed")
-          end
-          
-          Config.AwaitingResponse = false
-          Config.DataBuffer = ''
-        end
-      
-      
-        elseif command == Protocol.Commands.FIRMWARE then
-          if #responseData >= Protocol.ReplyLength.FIRMWARE then
+      local handledOrUnsupported = false
+      local command, commandName = MastervoltPV_GetCommandFromData(commandEcho)
+      logDbg(string.format("Response command received: %s (%s)", utils.num2hex(command), commandName or '<unknown command>'))
+   
+      if commandName then
+        local handleFunc = HandleIncomingFuncMap[command]
+        if handleFunc then
+          if #responseData >= Protocol.ReplyLength[commandName] then
             if MastervoltPV_VerifyChecksum(responseData) then
-              local firmware = MastervoltPV_DecodeFirmware(responseData)
-              logDbg(string.format("id': %x, version: %.2f, date: %d", 
-                                   firmware.Id, firmware.Version, firmware.Date))
+              handleFunc(responseData)
             else
               logDbg("Checksum for received response failed")
             end
             
-            Config.AwaitingResponse = false
-            Config.DataBuffer = ''
+            handledOrUnsupported = true
           end
-      
-      elseif command == Protocol.Commands.STATS then
-        if #responseData >= Protocol.ReplyLength.STATS then
-          if MastervoltPV_VerifyChecksum(responseData) then
-            local stats = MastervoltPV_DecodeStats(responseData)
-            logDbg(string.format("flags': %x, pv_volt: %.1f, pv_amp: %.2f, grid_freq: %.2f, grid_volt: %d, grid_pow: %d, total_pow: %.2f, temp: %d, optime: %d", 
-                 stats.Flags, stats.PV_Voltage, stats.PV_Amperage, stats.Grid_Frequency, stats.Grid_Voltage, stats.Grid_Power, stats.Grid_Output_Total, stats.Device_Temperature, stats.Device_Operatingtime))
-            
-            setLuupVar("Flags",              stats.Flags,                  MastervoltSID)
-            setLuupVar("PVVoltage",          stats.PV_Voltage,             MastervoltSID)
-            setLuupVar("PVCurrent",          stats.PV_Amperage,            MastervoltSID)
-            setLuupVar("GridVoltage",        stats.Grid_Voltage,           MastervoltSID)
-            setLuupVar("GridFrequency",      stats.Grid_Frequency,         MastervoltSID)
-            setLuupVar("OperatingTime",      stats.Device_Operatingtime,   MastervoltSID)
-            setLuupVar("Watts",              stats.Grid_Power,             EnergyMeterSID)
-            setLuupVar("KWH",                stats.Grid_Output_Total,      EnergyMeterSID)
-            setLuupVar("CurrentTemperature", stats.Device_Temperature,     TemperatureSensorSID)
-            setLuupVar("LastUpdate",         math.floor(socket.gettime()), HaDeviceSID)
-          else
-            logDbg("Checksum for received response failed")
-          end
-          
-          Config.AwaitingResponse = false
-          Config.DataBuffer = ''
+        else
+          log(string.format("Unsupported response command received: %s", utils.num2hex(command)))
+          handledOrUnsupported = true
         end
       else
-        log(string.format("Unsupported response command received: %s", utils.num2hex(command)))
-      
+        handledOrUnsupported = true
+      end
+
+      if handledOrUnsupported then
         Config.AwaitingResponse = false
         Config.DataBuffer = ''
       end
