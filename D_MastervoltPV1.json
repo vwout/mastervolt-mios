@@ -420,7 +420,7 @@
 				"ControlType":"variable",
 				"text_align":"right",
 				"Display": {
-					"Service": "urn:schemas-micasaverde-com:service:HaDevice:1",
+					"Service": "urn:micasaverde-com:serviceId:HaDevice1",
 					"Variable": "LastUpdate",
 					"Top": 300,
 					"Left": 240,
