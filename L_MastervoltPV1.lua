@@ -76,6 +76,14 @@ local Protocol = {
 	    HISTORY         = 9
 	},
 	ReplyStructs = {
+		Probe = {
+			DeviceAddress = 0x000
+		},
+		Firmware = {
+			Id      = 0,
+			Version = 0.0,
+			Date    = 0
+		},
 		Stats = {
 			Flags                = 0x0000,
 			PV_Voltage           = 0.0,
@@ -89,8 +97,16 @@ local Protocol = {
 		}
 	},
 	ReplyMap = { -- Indexes are lua-compliant and therefore 1-based
+		Probe = {
+			ADDRESS    = {3, 4}     -- Device address; actually this is the sender address present in all responses
+		},
+		Firmware = {
+		    ID         = {14, 14},
+		    VERSION    = {16, 17},  -- MSB is major version, LSB is minor version
+		    DATE       = {18, 19},
+		},
 		Stats = {
-			FLAGS      = {7, 8},    -- Operation status flags, see Flags
+		    FLAGS      = {7, 8},    -- Operation status flags, see Flags
 		    PV_VOLT    = {9, 10},   -- PV Voltage in V * 10
 		    PV_AMP     = {11, 12},  -- PV amperage in A * 100
 		    GRID_FREQ  = {13, 14},  -- Grid (output) frequency in Hz * 100
@@ -342,35 +358,55 @@ local function MastervoltPV_VerifyChecksum(data)
   return checksum == utils.LSB(sum)
 end
 
+local function _getReplyBytes(data, bytes)
+local substr = string.sub(data, bytes[1], bytes[2])
+local value = 0
+
+for i = #substr, 1, -1 do
+  value = bit.lshift(value, 8)
+  value = value + string.byte(substr, i)
+end
+
+--local substr_hex = ''
+--for i = 1, #substr do
+--  substr_hex = substr_hex .. utils.num2hex(string.byte(substr, i)) .. ' '
+--end
+--logDbg(string.format("getReplyBytes %d: '%s' %d", bytes[1], substr_hex, value))
+return value
+end
+
+local function MastervoltPV_DecodeProbe(data)
+  local probe = { unpack(Protocol.ReplyStructs.Probe) }
+  
+  address = _getReplyBytes(data, Protocol.ReplyMap.Probe.ADDRESS)
+  probe.DeviceAddress = bit.lshift(utils.LSB(address), 8) + utils.MSB(address)
+  
+  return probe
+end
+
+local function MastervoltPV_DecodeFirmware(data)
+  local firmware = { unpack(Protocol.ReplyStructs.Firmware) }
+  
+  firmware.Id      = _getReplyBytes(data, Protocol.ReplyMap.Firmware.ID)
+  local version = _getReplyBytes(data, Protocol.ReplyMap.Firmware.VERSION)
+  firmware.Version = utils.MSB(version) + utils.MSB(version) / 100
+  firmware.Date    = _getReplyBytes(data, Protocol.ReplyMap.Firmware.DATE)
+  
+  return firmware
+end
+
 local function MastervoltPV_DecodeStats(data)
   local stats = { unpack(Protocol.ReplyStructs.Stats) }
   
-  local function getReplyBytes(data, bytes)
-    local substr = string.sub(data, bytes[1], bytes[2])
-	local value = 0
-	
-	for i = #substr, 1, -1 do
-	  value = bit.lshift(value, 8)
-	  value = value + string.byte(substr, i)
-	end
-	
-	--local substr_hex = ''
-	--for i = 1, #substr do
-	--  substr_hex = substr_hex .. utils.num2hex(string.byte(substr, i)) .. ' '
-    --end
-	--logDbg(string.format("getReplyBytes %d: '%s' %d", bytes[1], substr_hex, value))
-	return value
-  end
-  
-  stats.Flags                = getReplyBytes(data, Protocol.ReplyMap.Stats.FLAGS)
-  stats.PV_Voltage           = getReplyBytes(data, Protocol.ReplyMap.Stats.PV_VOLT) / 10.0
-  stats.PV_Amperage          = getReplyBytes(data, Protocol.ReplyMap.Stats.PV_AMP) / 100.0
-  stats.Grid_Frequency       = getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_FREQ) / 100.0
-  stats.Grid_Voltage         = getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_VOLT)
-  stats.Grid_Power           = getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_POW)
-  stats.Grid_Output_Total    = getReplyBytes(data, Protocol.ReplyMap.Stats.TOTAL_POW) / 100.0
-  stats.Device_Temperature   = getReplyBytes(data, Protocol.ReplyMap.Stats.TEMP)
-  stats.Device_Operatingtime = getReplyBytes(data, Protocol.ReplyMap.Stats.OPTIME)
+  stats.Flags                = _getReplyBytes(data, Protocol.ReplyMap.Stats.FLAGS)
+  stats.PV_Voltage           = _getReplyBytes(data, Protocol.ReplyMap.Stats.PV_VOLT) / 10.0
+  stats.PV_Amperage          = _getReplyBytes(data, Protocol.ReplyMap.Stats.PV_AMP) / 100.0
+  stats.Grid_Frequency       = _getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_FREQ) / 100.0
+  stats.Grid_Voltage         = _getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_VOLT)
+  stats.Grid_Power           = _getReplyBytes(data, Protocol.ReplyMap.Stats.GRID_POW)
+  stats.Grid_Output_Total    = _getReplyBytes(data, Protocol.ReplyMap.Stats.TOTAL_POW) / 100.0
+  stats.Device_Temperature   = _getReplyBytes(data, Protocol.ReplyMap.Stats.TEMP)
+  stats.Device_Operatingtime = _getReplyBytes(data, Protocol.ReplyMap.Stats.OPTIME)
   
   return stats
 end
@@ -411,6 +447,8 @@ function MastervoltPV_Init(lul_device)
   
   Config.DataBuffer = ''
   if MastervoltPV_Connect() then
+    MastervoltPV_SendCommand(Protocol.Commands.PROBE, 0x0000) -- Send probe command with destination address 0x0000
+  
     Config.PollIntervalSeconds = getDeviceVar("PollIntervalSeconds", Config.PollIntervalSeconds)
     luup.call_delay("MastervoltPV_UpdateStatus", Config.PollIntervalSeconds)
   else
@@ -441,8 +479,39 @@ function MastervoltPV_Incoming(lul_device, lul_data)
 	  
 	  local command = MastervoltPV_GetCommandFromData(commandEcho)
 	  logDbg(string.format("Response command received: %s", utils.num2hex(command)))
-		
-	  if command == Protocol.Commands.STATS then
+
+	  if command == Protocol.Commands.PROBE then
+	    if #responseData >= Protocol.ReplyLength.PROBE then
+		  if MastervoltPV_VerifyChecksum(responseData) then
+			local probe = MastervoltPV_DecodeProbe(responseData)
+			logDbg(string.format("device address': %x", probe.DeviceAddress))
+			
+			setLuupVar("DeviceAddress", probe.DeviceAddress, MastervoltSID) -- Store the device address as variable
+			Config.Protocol.DestinationAddress = probe.DeviceAddress        -- Store the device address in the local configuration for use in all commands
+		  else
+		    logDbg("Checksum for received response failed")
+		  end
+		  
+		  Config.AwaitingResponse = false
+		  Config.DataBuffer = ''
+		end
+	  
+	  
+	  elseif command == Protocol.Commands.FIRMWARE then
+	    if #responseData >= Protocol.ReplyLength.FIRMWARE then
+		  if MastervoltPV_VerifyChecksum(responseData) then
+			local firmware = MastervoltPV_DecodeFirmware(responseData)
+			logDbg(string.format("id': %x, version: %.2f, date: %d", 
+				   firmware.Id, firmware.Version, firmware.Date))
+		  else
+		    logDbg("Checksum for received response failed")
+		  end
+		  
+		  Config.AwaitingResponse = false
+		  Config.DataBuffer = ''
+		end
+	  
+	  elseif command == Protocol.Commands.STATS then
 	    if #responseData >= Protocol.ReplyLength.STATS then
 		  if MastervoltPV_VerifyChecksum(responseData) then
 		
@@ -484,11 +553,12 @@ end
 
 if false then
 PVDeviceID=5
+IP=""
 log("Using socket ..")
 
 local socket = require("socket")
 local sock = assert(socket.tcp())
-local success, err = sock:connect("192.168.3.102", "23")
+local success, err = sock:connect(IP, "23")
 if success then
   sock:settimeout(1)
 
