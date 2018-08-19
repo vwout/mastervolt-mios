@@ -1,6 +1,14 @@
+--[==[
+  Module L_MastervoltPV1.lua
+  Written by Vwout
+
+  V0.1 First release
+
+  Get data from Mastervolt Soladin-compatible Solar inverted
+--]==]
 local ABOUT = {
   NAME          = "L_MastervoltPV1",
-  VERSION       = "0.0.1",
+  VERSION       = "0.1",
   DESCRIPTION   = "Device plugin for Mastervolt Soladin compatible solar inverters",
   AUTHOR        = "@vwout",
   COPYRIGHT     = "(c) 2018 Vwout",
