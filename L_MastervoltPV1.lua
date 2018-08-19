@@ -57,14 +57,14 @@ local HaDeviceSID          = "urn:micasaverde-com:serviceId:HaDevice1"         -
 local Protocol = {
   Commands = {
     -- Byte sequence for Soladin commands
-    PROBE           = 0xC100, -- 00 00  FF FF  C1 00  00 00  BF
-    FIRMWARE        = 0xB400, -- 20 04  FF FF  B4 00  00 00  D6
-    STATS           = 0xB600, -- 20 04  FF FF  B6 00  00 00  D8
-    MAX_POWER       = 0xB900, -- 20 04  FF FF  B9 00  00 00  DB
-    RESET_MAX_POWER = 0x9701, -- 20 04  FF FF  97 01  00 00  BA
-    HISTORY         = 0x9A00  -- 20 04  FF FF  9A 00  00 00  BC
-                      -- The inverter stores data (grid energy and time) for last 10 days. 
-                      -- The inverter has no clock built-in, a day is therefore defined as operating season. 
+    PROBE           = 0x00C1, -- 00 00  FF FF  C1 00  00 00  xx
+    FIRMWARE        = 0x00B4, -- xx xx  FF FF  B4 00  00 00  xx
+    STATS           = 0x00B6, -- xx xx  FF FF  B6 00  00 00  xx
+    MAX_POWER       = 0x00B9, -- xx xx  FF FF  B9 00  00 00  xx
+    RESET_MAX_POWER = 0x0197, -- xx xx  FF FF  97 01  00 00  xx
+    HISTORY         = 0x009A  -- xx xx  FF FF  9A 00  00 00  xx
+                      -- The inverter stores data (grid energy and time) for last 10 days.
+                      -- The inverter has no clock built-in, a day is therefore defined as operating season.
                       -- The second command byte is the day to read; 0 = today, 9 = 9 days before today
   },
   CommandLength = 9,
@@ -296,12 +296,12 @@ local function MastervoltPV_GetCommandStr(command, destination, source)
   local source = source or Config.Protocol.SourceAddress
   
   local cmdString = {
-    utils.MSB(destination),
-    utils.LSB(destination),
-    utils.MSB(source),
-    utils.LSB(source),
-    utils.MSB(command),
+    utils.LSB(dest_addr),
+    utils.MSB(dest_addr),
+    utils.LSB(source_addr),
+    utils.MSB(source_addr),
     utils.LSB(command),
+    utils.MSB(command),
     0x00,
     0x00
   }
@@ -326,7 +326,8 @@ end
 local function MastervoltPV_GetCommandFromData(data)
   local command = 0
   local commandName = nil
-  
+
+  -- Reverse bytes to convert from little-endian
   if #data == Protocol.CommandLength then
     if type(data) == 'string' then
       command = bit.lshift(string.byte(data, 5), 8) + string.byte(data, 6)
@@ -386,10 +387,9 @@ end
 
 local function MastervoltPV_DecodeProbe(data)
   local probe = { unpack(Protocol.ReplyStructs.Probe) }
-  
-  address = _getReplyBytes(data, Protocol.ReplyMap.Probe.ADDRESS)
-  probe.DeviceAddress = bit.lshift(utils.LSB(address), 8) + utils.MSB(address)
-  
+
+  probe.DeviceAddress = _getReplyBytes(data, Protocol.ReplyMap.Probe.ADDRESS)
+
   return probe
 end
 
